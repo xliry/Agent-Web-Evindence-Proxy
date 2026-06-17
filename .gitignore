@@ -1,0 +1,8 @@
+.awep/
+.pytest-tmp/
+.pytest_cache/
+.ruff_cache/
+tmp-pytest/
+agent-web-evidence-proxy/
+__pycache__/
+*.py[cod]
