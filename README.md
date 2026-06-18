@@ -24,6 +24,7 @@ Use it when an AI agent says “I searched the web” and you need to review wha
 - It does not bypass anti-bot systems.
 - It does not automate a browser or execute JavaScript.
 - It does not crawl the web.
+- It does not provide a UI, dashboard, or HTML report in v0.
 - It does not send telemetry.
 
 ## Quickstart
@@ -51,17 +52,47 @@ Or run the local API:
 awep serve --port 8787
 ```
 
+The API binds to `127.0.0.1` by default.
+
 Then call:
 
 ```http
 POST http://127.0.0.1:8787/v1/fetch
 ```
 
+PowerShell example:
+
+```powershell
+$body = @{
+  url = "https://example.com"
+  claim = "Example Domain is used for illustrative examples"
+  agent_id = "codex"
+  tool_name = "web.run"
+} | ConvertTo-Json -Compress
+
+Invoke-RestMethod `
+  -Uri "http://127.0.0.1:8787/v1/fetch" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+## API Endpoints
+
+- `GET /healthz`
+- `POST /v1/fetch`
+- `GET /v1/runs`
+- `GET /v1/runs/{run_id}/report.md`
+- `POST /v1/runs/{run_id}/report`
+- `GET /v1/runs/{run_id}/evidence.json`
+- `GET /v1/runs/{run_id}/verify`
+- `POST /v1/runs/{run_id}/verify`
+
 ## Evidence Statuses
 
 Source quality statuses are `ok`, `blocked`, `empty`, `login_required`, `js_required`, and `error`.
 
-Claim evidence statuses are `supported`, `weak`, `missing`, `blocked`, `empty`, and `error`. They describe source evidence quality, not whether reality is true or false.
+Claim evidence statuses are `supported`, `weak`, `missing`, `blocked`, `empty`, and `error`. They describe evidence quality, not truth. A `supported` label means the fetched text resembles the claim; it does not prove the claim is true.
 
 ## Security
 
