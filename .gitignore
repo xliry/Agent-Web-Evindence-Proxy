@@ -7,3 +7,6 @@ tmp-pytest/
 agent-web-evidence-proxy/
 __pycache__/
 *.py[cod]
+dist/
+build/
+*.egg-info/

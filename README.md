@@ -1,5 +1,7 @@
 # Agent Web Evidence Proxy
 
+[![CI](https://github.com/xliry/Agent-Web-Evindence-Proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/xliry/Agent-Web-Evindence-Proxy/actions/workflows/ci.yml)
+
 Local evidence receipts for AI agent web research.
 
 ![Agent Web Evidence Proxy overview](docs/agent-web-evidence-proxy.png)
@@ -8,7 +10,7 @@ Agent Web Evidence Proxy is a local-first CLI and lightweight HTTP API that prov
 
 It captures the URL, timestamp, HTTP status, redirects, extracted Markdown/text, page-quality warnings, source snippets, content hashes, and optional claim-to-source evidence status. The result is a human-readable Markdown evidence report plus a machine-readable JSON bundle that can be verified later.
 
-Use it when an AI agent says “I searched the web” and you need to review what was actually fetched, whether the page was readable, and whether the cited source really contains evidence related to the claim.
+Use it when an AI agent says "I searched the web" and you need to review what was actually fetched, whether the page was readable, and whether the cited source really contains evidence related to the claim.
 
 ## What It Does
 
@@ -29,11 +31,21 @@ Use it when an AI agent says “I searched the web” and you need to review wha
 
 ## Quickstart
 
+Package status: not published to PyPI yet.
+
+Install from local source:
+
 ```bash
 python -m pip install -e ".[dev]"
 awep fetch https://example.com --claim "Example Domain is used for illustrative examples"
 awep report latest
 awep verify latest
+```
+
+Once published:
+
+```bash
+python -m pip install agent-web-evidence-proxy
 ```
 
 Evidence is written under `.awep/runs/<run-id>/`.
@@ -99,6 +111,10 @@ Claim evidence statuses are `supported`, `weak`, `missing`, `blocked`, `empty`, 
 The fetcher blocks localhost, loopback, private IP ranges, link-local addresses, metadata service addresses, non-HTTP schemes, and file URLs by default. Use `--allow-private` only for explicit local testing.
 
 Receipts redact sensitive query parameters and do not store raw HTML by default. Authorization, cookie, API key, and proxy authorization headers are treated as secrets.
+
+## Release
+
+See [docs/release-checklist.md](docs/release-checklist.md). PyPI publishing is manual until explicitly approved.
 
 ## Roadmap
 
