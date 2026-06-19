@@ -13,7 +13,17 @@ ANTIBOT_PHRASES = {
     "unusual traffic": "unusual_traffic",
     "too many requests": "too_many_requests",
 }
-LOGIN_PHRASES = ("sign in", "log in", "login required", "create an account")
+WEAK_LOGIN_LINK_PHRASES = ("sign in", "log in", "sign up", "create an account")
+HARD_LOGIN_WALL_PHRASES = (
+    "login required",
+    "sign in to continue",
+    "please sign in to continue",
+    "you must sign in",
+    "you need to sign in",
+    "authentication required",
+    "requires authentication",
+    "this page requires authentication",
+)
 JS_PHRASES = ("enable javascript", "please enable javascript", "javascript is disabled")
 
 
@@ -31,9 +41,14 @@ def classify_quality(
     if error:
         return QualityEvidence(status="error", flags=["network_error"], reasons=[error])
     lowered = f"{title or ''}\n{text}\n{html[:2000]}".lower()
+    text_chars = len(text.strip())
+    is_substantial_page = status_code == 200 and text_chars >= 1000 and bool((title or "").strip())
     if status_code in {401, 403, 407, 429}:
         flags.append(f"http_{status_code}")
         reasons.append(f"HTTP status {status_code} indicates blocked or rate-limited access")
+    if status_code == 401:
+        flags.append("login_wall_text")
+        reasons.append("HTTP status 401 indicates authentication is required")
     if status_code == 503 and any(word in lowered for word in ("bot", "captcha", "cloudflare")):
         flags.append("http_503")
         reasons.append("HTTP 503 with anti-bot wording")
@@ -42,8 +57,18 @@ def classify_quality(
     for phrase, flag in ANTIBOT_PHRASES.items():
         if phrase in lowered:
             flags.append(flag)
-    if any(re.search(rf"\b{re.escape(phrase)}\b", lowered) for phrase in LOGIN_PHRASES):
+    has_hard_login = any(
+        re.search(rf"\b{re.escape(phrase)}\b", lowered) for phrase in HARD_LOGIN_WALL_PHRASES
+    )
+    has_weak_login = any(
+        re.search(rf"\b{re.escape(phrase)}\b", lowered) for phrase in WEAK_LOGIN_LINK_PHRASES
+    )
+    if has_hard_login:
         flags.append("login_wall_text")
+    elif has_weak_login and not is_substantial_page:
+        flags.append("login_wall_text")
+    elif has_weak_login:
+        flags.append("login_link_present")
     if any(phrase in lowered for phrase in JS_PHRASES):
         flags.append("enable_javascript_text")
     if (
@@ -52,7 +77,6 @@ def classify_quality(
         and "text/plain" not in content_type.lower()
     ):
         flags.append("non_html")
-    text_chars = len(text.strip())
     if text_chars < 80:
         flags.append("low_text_chars")
         reasons.append("Extracted text is very short")
