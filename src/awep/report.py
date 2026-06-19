@@ -25,7 +25,7 @@ def build_and_write_report(run_id: str, store: EvidenceStore) -> Path:
         "receipts": [receipt.model_dump(mode="json") for receipt in receipts],
     }
     (root / "evidence.json").write_text(
-        json.dumps(evidence, indent=2, sort_keys=True),
+        json.dumps(evidence, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
     )
     return root / "report.md"
@@ -58,7 +58,7 @@ def render_markdown(run_id: str, receipts: list[Receipt], verified: bool) -> str
         f"| Errors | {quality_counts['error']} |",
         f"| Claims supported | {claim_counts['supported']} |",
         f"| Claims weak | {claim_counts['weak']} |",
-        f"| Claims missing | {claim_counts['missing']} |",
+        f"| Claims missing lexical match | {claim_counts['missing']} |",
         "",
         "## Source Health",
         "",
@@ -84,6 +84,9 @@ def render_markdown(run_id: str, receipts: list[Receipt], verified: bool) -> str
     lines += [
         "",
         "## Claim Evidence",
+        "",
+        "Claim status describes lexical overlap with extracted text, not whether the source "
+        "was fetched or readable. Check Source Health for source availability.",
         "",
         "| Claim | Evidence Status | Score | URL | Snippet |",
         "|-------|-----------------|-------|-----|---------|",

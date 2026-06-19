@@ -65,7 +65,12 @@ class EvidenceStore:
         if receipt_path.exists():
             raise FileExistsError(f"receipt already exists: {event_id}")
         receipt_path.write_text(
-            json.dumps(receipt.model_dump(mode="json"), indent=2, sort_keys=True),
+            json.dumps(
+                receipt.model_dump(mode="json"),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            ),
             encoding="utf-8",
         )
         self.append_event(
@@ -87,7 +92,10 @@ class EvidenceStore:
     def append_event(self, event: EventRecord) -> None:
         root = self.run_path(event.run_id)
         with (root / "events.jsonl").open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(event.model_dump(mode="json"), sort_keys=True) + "\n")
+            handle.write(
+                json.dumps(event.model_dump(mode="json"), ensure_ascii=False, sort_keys=True)
+                + "\n"
+            )
 
     def touch_run(self, run_id: str) -> None:
         metadata = self.run_path(run_id) / "metadata.json"

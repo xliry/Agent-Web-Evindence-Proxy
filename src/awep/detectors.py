@@ -6,12 +6,19 @@ from awep.models import QualityEvidence
 
 ANTIBOT_PHRASES = {
     "captcha": "captcha",
-    "verify you are human": "verify_you_are_human",
-    "checking your browser": "checking_your_browser",
-    "cloudflare": "cloudflare_interstitial",
     "access denied": "access_denied",
     "unusual traffic": "unusual_traffic",
     "too many requests": "too_many_requests",
+}
+SOFT_ANTIBOT_PHRASES = ("anti-bot", "captcha", "cloudflare", "headless", "recaptcha")
+STRONG_INTERSTITIAL_PHRASES = {
+    "checking your browser": "checking_your_browser",
+    "cf-chl": "cloudflare_interstitial",
+    "cf_chl": "cloudflare_interstitial",
+    "cloudflare challenge": "cloudflare_interstitial",
+    "just a moment": "cloudflare_interstitial",
+    "turnstile": "cloudflare_interstitial",
+    "verify you are human": "verify_you_are_human",
 }
 WEAK_LOGIN_LINK_PHRASES = ("sign in", "log in", "sign up", "create an account")
 HARD_LOGIN_WALL_PHRASES = (
@@ -54,8 +61,14 @@ def classify_quality(
         reasons.append("HTTP 503 with anti-bot wording")
     if redirect_count:
         flags.append("redirected")
-    for phrase, flag in ANTIBOT_PHRASES.items():
+    has_soft_antibot = any(phrase in lowered for phrase in SOFT_ANTIBOT_PHRASES)
+    if has_soft_antibot:
+        flags.append("anti_bot_terms_present")
+    for phrase, flag in STRONG_INTERSTITIAL_PHRASES.items():
         if phrase in lowered:
+            flags.append(flag)
+    for phrase, flag in ANTIBOT_PHRASES.items():
+        if phrase in lowered and (not is_substantial_page or status_code in {403, 407, 429, 503}):
             flags.append(flag)
     has_hard_login = any(
         re.search(rf"\b{re.escape(phrase)}\b", lowered) for phrase in HARD_LOGIN_WALL_PHRASES

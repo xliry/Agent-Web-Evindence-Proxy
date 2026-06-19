@@ -18,6 +18,8 @@ def classify_fixture(name: str):
     [
         ("normal.html", "ok", None),
         ("captcha.html", "blocked", "captcha"),
+        ("cloudflare_interstitial.html", "blocked", "cloudflare_interstitial"),
+        ("hackernews_readable_antibot_mentions.html", "ok", "anti_bot_terms_present"),
         ("login.html", "login_required", "login_wall_text"),
         ("real_login_wall.html", "login_required", "login_wall_text"),
         ("github_public_repo.html", "ok", "login_link_present"),
@@ -59,3 +61,14 @@ def test_github_public_page_claim_is_not_blocked_by_login_nav() -> None:
     assert "login_link_present" in quality.flags
     assert claim is not None
     assert claim.status in {"supported", "weak"}
+
+
+def test_readable_antibot_mentions_are_not_blocked() -> None:
+    body = (
+        Path(__file__).parent / "fixtures" / "hackernews_readable_antibot_mentions.html"
+    ).read_bytes()
+    title, _markdown, text = extract_content(body, "text/html")
+    quality = classify_quality(200, title, text, decode_body(body), "text/html")
+    assert quality.status == "ok"
+    assert "anti_bot_terms_present" in quality.flags
+    assert "cloudflare_interstitial" not in quality.flags
