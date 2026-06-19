@@ -54,9 +54,9 @@ dev = [
 awep = "awep.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/xliry/Agent-Web-Evindence-Proxy"
-Repository = "https://github.com/xliry/Agent-Web-Evindence-Proxy"
-Issues = "https://github.com/xliry/Agent-Web-Evindence-Proxy/issues"
+Homepage = "https://github.com/xliry/Agent-Web-Evidence-Proxy"
+Repository = "https://github.com/xliry/Agent-Web-Evidence-Proxy"
+Issues = "https://github.com/xliry/Agent-Web-Evidence-Proxy/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/awep"]

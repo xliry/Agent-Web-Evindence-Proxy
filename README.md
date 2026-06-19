@@ -1,6 +1,6 @@
 # Agent Web Evidence Proxy
 
-[![CI](https://github.com/xliry/Agent-Web-Evindence-Proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/xliry/Agent-Web-Evindence-Proxy/actions/workflows/ci.yml)
+[![CI](https://github.com/xliry/Agent-Web-Evidence-Proxy/actions/workflows/ci.yml/badge.svg)](https://github.com/xliry/Agent-Web-Evidence-Proxy/actions/workflows/ci.yml)
 
 Local evidence receipts for AI agent web research.
 
